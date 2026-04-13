@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mind Map</title>
+
+<script src="./template/d3.v7.min.js"></script>
+
+<style>
+@font-face {
+  font-family: 'Inter';
+  src: url('./template/fonts/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Inter';
+  src: url('./template/fonts/Inter-Italic-VariableFont_opsz,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-style: italic;
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', Arial, sans-serif;
+  background: #f5f6fb;
+  overflow: hidden;
+}
+
+svg {
+  width: 100%;
+  height: 100vh;
+  display: block;
+  cursor: grab;
+}
+svg:active { cursor: grabbing; }
+
+.link {
+  fill: none;
+  stroke-width: 2.5px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.9;
+  transition: stroke-width .2s;
+}
+.link:hover { stroke-width: 3px; }
+
+.node rect {
+  rx: 8px;
+  ry: 8px;
+  stroke: none;
+  filter: drop-shadow(0px 4px 8px rgba(0,0,0,0.12));
+  transition: all .2s;
+}
+.node:hover rect {
+  filter: drop-shadow(0px 6px 12px rgba(0,0,0,0.2));
+}
+
+.node text {
+  dominant-baseline: middle;
+  pointer-events: none;
+  user-select: none;
+  fill: white;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+.toggle {
+  cursor: pointer;
+  transition: transform .3s;
+}
+.toggle circle { stroke: none; }
+.toggle-text {
+  fill: white;
+  font-size: 12px;
+  font-weight: bold;
+  text-anchor: middle;
+  dominant-baseline: middle;
+  pointer-events: none;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+.map-title {
+  font-weight: 700;
+  letter-spacing: .5px;
+  fill: #4f46e5;
+  font-family: 'Inter', Arial, sans-serif;
+}
+
+.control-panel {
+  position: absolute;
+  display: flex;
+  gap: 10px;
+  background: white;
+  padding: 10px 12px;
+  border-radius: 14px;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+}
+.control-panel button {
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #6366f1, #818cf8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all .2s;
+}
+.control-panel button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0,0,0,0.18);
+}
+.control-panel svg { fill: white; }
+</style>
+</head>
+<body>
+<svg></svg>
+
+<div class="control-panel">
+  <button id="zoom-in">
+    <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="white" stroke-width="2"/></svg>
+  </button>
+  <button id="full-view">
+    <svg viewBox="0 0 24 24"><path d="M4 4h6v2H6v4H4V4zm10 0h6v6h-2V6h-4V4zM4 14h2v4h4v2H4v-6zm14 0h2v6h-6v-2h4v-4z"/></svg>
+  </button>
+  <button id="zoom-out">
+    <svg viewBox="0 0 24 24"><path d="M5 12h14" stroke="white" stroke-width="2"/></svg>
+  </button>
+</div>
+
+<script>
+fetch('./data.json')
+  .then(r => r.json())
+  .then(data => {
+
+const svg = d3.select("svg");
+const gLinks = svg.append("g");
+const gNodes = svg.append("g");
+
+let width = window.innerWidth;
+let height = window.innerHeight;
+
+// Logo
+const logoSize = 60;
+const logoMargin = 20;
+const logo = svg.append("image")
+  .attr("href", "./template/logo.png")
+  .attr("width", logoSize)
+  .attr("height", logoSize)
+  .attr("x", width - logoSize - logoMargin)
+  .attr("y", logoMargin);
+
+function updateLogoPosition() {
+  logo.attr("x", width - logoSize - logoMargin).attr("y", logoMargin);
+}
+window.addEventListener("resize", () => {
+  width = window.innerWidth;
+  height = window.innerHeight;
+  updateLogoPosition();
+});
+
+// Zoom
+const zoom = d3.zoom().scaleExtent([0.3, 3]).on("zoom", e => {
+  gLinks.attr("transform", e.transform);
+  gNodes.attr("transform", e.transform);
+});
+svg.call(zoom);
+
+// Title
+const title = svg.append("text").attr("class", "map-title").text("Mind Map of " + data.name);
+
+// Tree
+const root = d3.hierarchy(data);
+root.x0 = height / 2;
+root.y0 = 100;
+let id = 0;
+root.each(d => d.id = id++);
+
+if (root.children) {
+  root._children = root.children;
+  root._children.forEach(collapse);
+  root.children = null;
+}
+function collapse(d) {
+  if (d.children) { d._children = d.children; d._children.forEach(collapse); d.children = null; }
+}
+
+const colorScale = d3.scaleOrdinal(["#2563eb","#7c3aed","#059669","#ea580c","#db2777","#0891b2","#4338ca","#0f766e"]);
+function branchColor(d) {
+  if (d.depth === 0) return "#4f46e5";
+  let a = d;
+  while (a.depth > 1) a = a.parent;
+  return colorScale(a.parent.children.indexOf(a));
+}
+
+function update(source) {
+  const duration = 700;
+  const nodes = root.descendants();
+
+  nodes.forEach(d => {
+    if (!d.data.width) {
+      const temp = gNodes.append("text")
+        .text(d.data.name)
+        .attr("font-size", d.depth === 0 ? 18 : 14)
+        .attr("font-weight", d.depth === 0 ? 700 : 500)
+        .attr("opacity", 0);
+      const box = temp.node().getBBox();
+      const paddingX = 16;
+      const paddingY = 12;
+      d.data.width = box.width + paddingX * 2;
+      d.data.height = box.height + paddingY * 2;
+      temp.remove();
+    }
+  });
+
+  const maxW = d3.max(nodes, d => d.data.width);
+  const maxH = d3.max(nodes, d => d.data.height);
+  const tree = d3.tree().nodeSize([maxH + 30, maxW + 50]);
+  tree(root);
+
+  nodes.forEach(d => d.color = branchColor(d));
+
+  // Links
+  const link = gLinks.selectAll(".link").data(root.links(), d => d.target.id);
+  const linkEnter = link.enter().append("path").attr("class", "link")
+    .attr("stroke", d => d.target.color)
+    .attr("d", d => { const sx = source.y0, sy = source.x0; return `M${sx},${sy}C${sx},${sy} ${sx},${sy} ${sx},${sy}`; });
+  link.merge(linkEnter).transition().duration(duration).ease(d3.easeCubicInOut)
+    .attr("d", d => {
+      const sx = d.source.y + d.source.data.width + 14;
+      const sy = d.source.x;
+      const tx = d.target.y;
+      const ty = d.target.x;
+      const mid = (tx - sx) / 2;
+      return `M${sx},${sy} C${sx+mid},${sy} ${tx-mid},${ty} ${tx},${ty}`;
+    });
+  link.exit().transition().duration(duration)
+    .attr("d", d => { const sx = d.source.y + d.source.data.width + 14, sy = d.source.x; return `M${sx},${sy}C${sx},${sy} ${sx},${sy} ${sx},${sy}`; })
+    .remove();
+
+  // Nodes
+  const node = gNodes.selectAll(".node").data(nodes, d => d.id);
+  const nodeEnter = node.enter().append("g").attr("class", "node")
+    .attr("transform", `translate(${source.y0},${source.x0})`).style("opacity", 0)
+    .on("click", (e, d) => { e.stopPropagation(); toggleNode(d); });
+
+  nodeEnter.append("rect")
+    .attr("x", 0)
+    .attr("y", d => -d.data.height / 2)
+    .attr("width", d => d.data.width)
+    .attr("height", d => d.data.height)
+    .attr("fill", d => d.color);
+
+  nodeEnter.append("text")
+    .attr("x", 12).attr("y", 0)
+    .text(d => d.data.name)
+    .attr("font-size", d => d.depth === 0 ? 18 : 14)
+    .attr("font-weight", d => d.depth === 0 ? 700 : 500);
+
+  const toggle = nodeEnter.append("g").attr("class", "toggle")
+    .attr("transform", d => `translate(${d.data.width + 14},0)`)
+    .style("visibility", d => (d.children || d._children) ? "visible" : "hidden");
+  toggle.append("circle").attr("r", 9).attr("fill", d => d3.color(d.color).darker(0.5));
+  toggle.append("text").attr("class", "toggle-text").text(d => d.children ? "–" : "+");
+
+  const nodeUpdate = nodeEnter.merge(node);
+  nodeUpdate.transition().duration(duration).ease(d3.easeCubicInOut)
+    .attr("transform", d => `translate(${d.y},${d.x})`).style("opacity", 1);
+  nodeUpdate.select(".toggle-text").text(d => d.children ? "–" : d._children ? "+" : "");
+  node.exit().transition().duration(duration).style("opacity", 0)
+    .attr("transform", d => `translate(${source.y},${source.x})`).remove();
+
+  nodes.forEach(d => { d.x0 = d.x; d.y0 = d.y; });
+  autoPan(nodes);
+}
+
+function toggleNode(d) {
+  if (d.children) { d._children = d.children; d.children = null; }
+  else { d.children = d._children; d._children = null; }
+  update(d);
+  focusExpanded(d);
+}
+
+function focusExpanded(d) {
+  const nodes = [d];
+  if (d.children) nodes.push(...d.children);
+  const minX = d3.min(nodes, n => n.y);
+  const maxX = d3.max(nodes, n => n.y + n.data.width);
+  const minY = d3.min(nodes, n => n.x - n.data.height / 2);
+  const maxY = d3.max(nodes, n => n.x + n.data.height / 2);
+  const padding = 40;
+  const scale = Math.min((width - padding) / (maxX - minX), (height - padding) / (maxY - minY), 1.2);
+  const x = (width - (maxX - minX) * scale) / 2 - minX * scale;
+  const y = (height - (maxY - minY) * scale) / 2 - minY * scale;
+  svg.transition().duration(800).ease(d3.easeCubicOut)
+    .call(zoom.transform, d3.zoomIdentity.translate(x, y).scale(scale));
+}
+
+function autoPan(nodes) {
+  const margin = 80;
+  const transform = d3.zoomTransform(svg.node());
+  const nodeXs = nodes.map(d => d.y * transform.k);
+  const nodeYs = nodes.map(d => d.x * transform.k);
+  const minX = Math.min(...nodeXs);
+  const maxX = Math.max(...nodeXs.map((x, i) => x + nodes[i].data.width * transform.k));
+  const minY = Math.min(...nodeYs.map((y, i) => y - nodes[i].data.height / 2 * transform.k));
+  const maxY = Math.max(...nodeYs.map((y, i) => y + nodes[i].data.height / 2 * transform.k));
+  let dx = 0, dy = 0;
+  if (maxX > width - margin) dx = width - margin - maxX;
+  else if (minX < margin) dx = margin - minX;
+  if (maxY > height - margin) dy = height - margin - maxY;
+  else if (minY < margin) dy = margin - minY;
+  if (dx !== 0 || dy !== 0) {
+    svg.transition().duration(700).ease(d3.easeCubicOut)
+      .call(zoom.translateBy, dx / transform.k, dy / transform.k);
+  }
+}
+
+function fullView() {
+  const nodes = root.descendants();
+  const minX = d3.min(nodes, d => d.y);
+  const maxX = d3.max(nodes, d => d.y + d.data.width);
+  const minY = d3.min(nodes, d => d.x - d.data.height / 2);
+  const maxY = d3.max(nodes, d => d.x + d.data.height / 2);
+  const padding = width < 500 ? 40 : 80;
+  const scale = Math.min((width - padding) / (maxX - minX), (height - padding) / (maxY - minY));
+  const x = (width - (maxX - minX) * scale) / 2 - minX * scale;
+  const y = (height - (maxY - minY) * scale) / 2 - minY * scale;
+  svg.transition().duration(1000).ease(d3.easeCubicOut)
+    .call(zoom.transform, d3.zoomIdentity.translate(x, y).scale(scale));
+}
+
+d3.select("#zoom-in").on("click", () => svg.transition().duration(500).ease(d3.easeCubicOut).call(zoom.scaleBy, 1.3));
+d3.select("#zoom-out").on("click", () => svg.transition().duration(500).ease(d3.easeCubicOut).call(zoom.scaleBy, 0.7));
+d3.select("#full-view").on("click", fullView);
+
+function resizeUI() {
+  width = window.innerWidth;
+  height = window.innerHeight;
+  svg.attr("width", width).attr("height", height);
+  let titleSize = width < 500 ? 14 : width < 800 ? 16 : 18;
+  title.attr("font-size", titleSize).attr("x", 20).attr("y", titleSize + 15);
+  const panel = d3.select(".control-panel");
+  const btnSize = width < 500 ? 30 : width < 800 ? 34 : 38;
+  panel.style("bottom", width < 500 ? "10px" : "20px").style("left", width < 500 ? "10px" : "20px");
+  panel.selectAll("button").style("width", btnSize + "px").style("height", btnSize + "px");
+  panel.selectAll("svg").attr("width", btnSize * 0.55).attr("height", btnSize * 0.55);
+  update(root);
+}
+window.addEventListener("resize", resizeUI);
+
+resizeUI();
+update(root);
+svg.call(zoom.transform, d3.zoomIdentity.translate(width / 4, height / 2).scale(0.8));
+
+  }); // end fetch
+</script>
+</body>
+</html>

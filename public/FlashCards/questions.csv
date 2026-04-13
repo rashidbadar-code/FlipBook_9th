@@ -1,0 +1,36 @@
+What is the smallest division on a standard laboratory metre rule?,$1 \text{ mm}$,"""Heading"",""Paragraph""
+""Calculation of the Value"",""A standard laboratory metre rule is 100 cm long. To determine the least count, you look at the smallest subdivision on the scale. The rule is divided into 100 main units called centimetres, and each centimetre is further divided into 10 equal small parts. The value of one small division is calculated by dividing 1 cm by 10, resulting in the numerical value of 0.1 cm or 1 mm.""
+""Impact on Precision"",""The numerical value of the least count determines the resolution and precision of your data. Since the smallest division is 0.1 cm, all measurements taken with a metre rule must be recorded to exactly one decimal place when using centimetres. For example, a measurement of 12.4 cm is correct, while recording 12.43 cm would be scientifically inaccurate because the final digit cannot be measured by the instrument's scale.""
+
+""Absolute Uncertainty"",""</b>In physics</b>, the least count of 1 mm also represents the absolute uncertainty of the instrument. This means every measurement taken carries a built-in margin of error of ?1 mm. If you record a length as 5.0 cm, it is understood that the true physical value of the object lies somewhere between 4.9 cm and 5.1 cm due to the limitations of the smallest division.""
+""Practical Application"",""The 1 mm least count makes the metre rule an efficient tool for measuring larger everyday objects where a tiny margin of error is acceptable. However, if the object being measured is extremely small, such as the diameter of a thin wire, the 1 mm division becomes too coarse, and an instrument with a smaller numerical least count must be used to ensure the fractional uncertainty remains low."""
+Term: Least count,</b>Definition</b>: The smallest measurement that can be taken accurately with an instrument.,"Calculation of the Value
+A standard laboratory metre rule is 100 cm long. To determine the least count, you look at the smallest subdivision on the scale. The rule is divided into 100 main units called centimetres, and each centimetre is further divided into 10 equal small parts. The value of one small division is calculated by dividing 1 cm by 10, resulting in the numerical value of 0.1 cm or 1 mm.
+
+Impact on Precision
+The numerical value of the least count determines the resolution and precision of your data. Since the smallest division is 0.1 cm, all measurements taken with a metre rule must be recorded to exactly one decimal place when using centimetres. For example, a measurement of 12.4 cm is correct, while recording 12.43 cm would be scientifically inaccurate because the final digit cannot be measured by the instrument's scale.
+
+Absolute Uncertainty
+In physics, the least count of 1 mm also represents the absolute uncertainty of the instrument. This means every measurement taken carries a built-in margin of error of ?1 mm. If you record a length as 5.0 cm, it is understood that the true physical value of the object lies somewhere between 4.9 cm and 5.1 cm due to the limitations of the smallest division.
+
+
+Practical Application
+The 1 mm least count makes the metre rule an efficient tool for measuring larger everyday objects where a tiny margin of error is acceptable. However, if the object being measured is extremely small, such as the diameter of a thin wire, the 1 mm division becomes too coarse, and an instrument with a smaller numerical least count must be used to ensure the fractional uncertainty remains low."
+What is the numerical value of the least count for a standard metre rule?,$1 \text{ mm}$,"
+Calculation of the Value
+A standard laboratory metre rule is 100 cm long. To determine the least count, you look at the smallest subdivision on the scale. The rule is divided into 100 main units called centimetres, and each centimetre is further divided into 10 equal small parts. The value of one small division is calculated by dividing 1 cm by 10, resulting in the numerical value of 0.1 cm or 1 mm.
+
+Impact on Precision
+The numerical value of the least count determines the resolution and precision of your data. Since the smallest division is 0.1 cm, all measurements taken with a metre rule must be recorded to exactly one decimal place when using centimetres. For example, a measurement of 12.4 cm is correct, while recording 12.43 cm would be scientifically inaccurate because the final digit cannot be measured by the instrument's scale.
+
+Absolute Uncertainty
+In physics, the least count of 1 mm also represents the absolute uncertainty of the instrument. This means every measurement taken carries a built-in margin of error of ?1 mm. If you record a length as 5.0 cm, it is understood that the true physical value of the object lies somewhere between 4.9 cm and 5.1 cm due to the limitations of the smallest division.
+
+Practical Application
+The 1 mm least count makes the metre rule an efficient tool for measuring larger everyday objects where a tiny margin of error is acceptable. However, if the object being measured is extremely small, such as the diameter of a thin wire, the 1 mm division becomes too coarse, and an instrument with a smaller numerical least count must be used to ensure the fractional uncertainty remains low."
+"When using a metre rule, where must the zero mark be positioned relative to the object?",The zero mark must coincide with one edge of the object.,
+Which specific error occurs when a measuring instrument is read from an incorrect angle?,Parallax error,
+"Besides correct eye positioning, what physical adjustment to the metre ruler helps reduce reading errors?",Tipping the ruler on its edge.,
+What is the least count of a standard measuring tape?,$1 \text{ mm}$,
+What is the primary advantage of using a measuring tape over a metre rule?,It can be used to measure longer distances up to several metres.,
+What is the typical measurement range of a standard measuring tape?,From $1 \text{ mm}$ to several metres.,

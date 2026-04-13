@@ -1,0 +1,5 @@
+{
+  "name": "ScribbleBoard",
+  "description": "A high-performance interactive digital writing board with undo/redo, custom brushes, and export capabilities.",
+  "requestFramePermissions": []
+}
